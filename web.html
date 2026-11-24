@@ -1,0 +1,449 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>RRB Clerk Online Quiz</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #eaf0f8;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .quiz-box {
+            background: white;
+            padding: 30px;
+            width: 500px;
+            max-width: 90%;
+            border-radius: 12px;
+            box-shadow: 0 0 15px #aaa;
+        }
+
+        h2 {
+            color: #174a78;
+            text-align: center;
+        }
+
+        .progress {
+            text-align: right;
+            color: #555;
+        }
+
+        .passage {
+            background: #eef4fb;
+            padding: 12px;
+            border-radius: 6px;
+            line-height: 1.5;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+        .option {
+            display: block;
+            padding: 13px;
+            margin: 10px 0;
+            background: #f0f4f8;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .option:hover {
+            background: #dceafa;
+        }
+
+        .option input {
+            margin-right: 10px;
+        }
+
+        button {
+            width: 100%;
+            padding: 13px;
+            background: #1769aa;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 15px;
+        }
+
+        button:hover {
+            background: #104b7a;
+        }
+
+        button:disabled {
+            background: #999;
+            cursor: not-allowed;
+        }
+
+        .correct {
+            color: green;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .wrong {
+            color: red;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        #result {
+            display: none;
+            text-align: center;
+        }
+
+        .score {
+            font-size: 45px;
+            color: green;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="quiz-box" id="quiz">
+
+    <h2>RRB Clerk Online Quiz</h2>
+
+    <p class="progress" id="progress"></p>
+
+    <div class="passage" id="passage"></div>
+
+    <h3 id="question"></h3>
+
+    <div id="options"></div>
+
+    <div id="feedback"></div>
+
+    <button id="submitBtn" onclick="submitAnswer()">
+        Submit Answer
+    </button>
+
+    <button id="nextBtn" onclick="nextQuestion()" hidden>
+        Next Question
+    </button>
+
+</div>
+
+<div class="quiz-box" id="result">
+
+    <h2>Quiz Completed!</h2>
+
+    <p>Congratulations! You completed the RRB Clerk Quiz.</p>
+
+    <h3>Your Final Score</h3>
+
+    <div class="score" id="finalScore"></div>
+
+    <h3 id="message"></h3>
+
+    <button onclick="restartQuiz()">Restart Quiz</button>
+
+</div>
+
+<script>
+
+const boxPassage = `Seven boxes – A, B, G, H, T, V and P are kept one above another.
+Three boxes are kept between T and B. B is at an even-numbered position.
+One box is kept between B and V. The number of boxes below V is one more
+than the number above P. A is above H but below G, and G is not adjacent to T.`;
+
+const tablePassage = `Eight persons M, P, Q, R, S, T, U and V are sitting around a square table.
+Four persons sitting at the corners face the centre, while four persons
+sitting in the middle of the sides face outside.
+
+Three persons sit between U and Q. U sits third to the right of R.
+M sits immediately right of R. Two persons sit between M and V.
+S sits adjacent to V and T. V is not adjacent to Q.
+P does not face inside the centre.`;
+
+const questions = [
+
+    {
+        passage: boxPassage,
+        question: "1. Which box is kept at the topmost position?",
+        options: [
+            "Box A",
+            "Box T",
+            "Box V",
+            "Box G"
+        ],
+        answer: "Box G"
+    },
+
+    {
+        passage: boxPassage,
+        question: "2. What is the position of box T from the bottom?",
+        options: [
+            "First",
+            "Fourth",
+            "Third",
+            "Second"
+        ],
+        answer: "Second"
+    },
+
+    {
+        passage: boxPassage,
+        question: "3. If all the boxes are arranged alphabetically from top to bottom, how many boxes will remain in the same position?",
+        options: [
+            "One",
+            "Two",
+            "Three",
+            "Four"
+        ],
+        answer: "Two"
+    },
+
+    {
+        passage: boxPassage,
+        question: "4. Which box is kept immediately above box H?",
+        options: [
+            "Box T",
+            "Box P",
+            "Box A",
+            "Box V"
+        ],
+        answer: "Box T"
+    },
+
+    {
+        passage: boxPassage,
+        question: "5. Find the box that does not belong to the group.",
+        options: [
+            "Box H",
+            "Box A",
+            "Box V",
+            "Box P"
+        ],
+        answer: "Box V"
+    },
+
+    {
+        passage: tablePassage,
+        question: "6. How many persons sit between R and V when counted clockwise from R?",
+        options: [
+            "One",
+            "Two",
+            "Four",
+            "Three"
+        ],
+        answer: "Three"
+    },
+
+    {
+        passage: tablePassage,
+        question: "7. What is the position of T with respect to U?",
+        options: [
+            "Immediate right",
+            "Third to the left",
+            "Second to the right",
+            "Immediate left"
+        ],
+        answer: "Third to the left"
+    },
+
+    {
+        passage: tablePassage,
+        question: "8. Which of the following pairs represents the persons sitting opposite to each other?",
+        options: [
+            "M and U",
+            "P and S",
+            "V and T",
+            "U and Q"
+        ],
+        answer: "U and Q"
+    },
+
+    {
+        passage: tablePassage,
+        question: "9. If all persons are arranged alphabetically in clockwise order starting from M, how many persons remain in their original positions, excluding M?",
+        options: [
+            "One",
+            "Two",
+            "Three",
+            "Four"
+        ],
+        answer: "Three"
+    },
+
+    {
+        passage: tablePassage,
+        question: "10. Find the person who does not belong to the group.",
+        options: [
+            "V",
+            "U",
+            "T",
+            "R"
+        ],
+        answer: "U"
+    }
+
+];
+
+let currentQuestion = 0;
+let score = 0;
+let answered = false;
+
+function loadQuestion() {
+
+    answered = false;
+
+    const q = questions[currentQuestion];
+
+    document.getElementById("progress").innerText =
+        "Question " + (currentQuestion + 1) +
+        " / " + questions.length;
+
+    document.getElementById("passage").innerText =
+        q.passage;
+
+    document.getElementById("question").innerText =
+        q.question;
+
+    document.getElementById("feedback").innerHTML = "";
+
+    document.getElementById("options").innerHTML = "";
+
+    q.options.forEach(function(option) {
+
+        const label = document.createElement("label");
+
+        label.className = "option";
+
+        label.innerHTML =
+            `<input type="radio" name="answer" value="${option}">
+             ${option}`;
+
+        document.getElementById("options").appendChild(label);
+
+    });
+
+    document.getElementById("submitBtn").hidden = false;
+
+    document.getElementById("nextBtn").hidden = true;
+
+}
+
+function submitAnswer() {
+
+    if (answered) return;
+
+    const selected = document.querySelector(
+        'input[name="answer"]:checked'
+    );
+
+    if (!selected) {
+        alert("Please select an answer!");
+        return;
+    }
+
+    answered = true;
+
+    const correctAnswer = questions[currentQuestion].answer;
+
+    if (selected.value === correctAnswer) {
+
+        score++;
+
+        document.getElementById("feedback").innerHTML =
+            '<p class="correct">Correct Answer! 🎉</p>';
+
+    } else {
+
+        document.getElementById("feedback").innerHTML =
+            '<p class="wrong">Wrong Answer!</p>' +
+            '<p>Correct Answer: ' + correctAnswer + '</p>';
+
+    }
+
+    document.querySelectorAll(
+        'input[name="answer"]'
+    ).forEach(function(input) {
+        input.disabled = true;
+    });
+
+    document.getElementById("submitBtn").hidden = true;
+
+    const nextBtn = document.getElementById("nextBtn");
+
+    nextBtn.hidden = false;
+
+    nextBtn.innerText =
+        currentQuestion === questions.length - 1
+        ? "Finish Quiz"
+        : "Next Question";
+
+}
+
+function nextQuestion() {
+
+    currentQuestion++;
+
+    if (currentQuestion < questions.length) {
+
+        loadQuestion();
+
+    } else {
+
+        showResult();
+
+    }
+
+}
+
+function showResult() {
+
+    document.getElementById("quiz").style.display = "none";
+
+    document.getElementById("result").style.display = "block";
+
+    document.getElementById("finalScore").innerText =
+        score + " / " + questions.length;
+
+    if (score >= 8) {
+
+        document.getElementById("message").innerText =
+            "Excellent Performance!";
+
+    } else if (score >= 5) {
+
+        document.getElementById("message").innerText =
+            "Good Job! Keep Practicing!";
+
+    } else {
+
+        document.getElementById("message").innerText =
+            "Keep Practicing!";
+
+    }
+
+}
+
+function restartQuiz() {
+
+    currentQuestion = 0;
+    score = 0;
+    answered = false;
+
+    document.getElementById("result").style.display = "none";
+
+    document.getElementById("quiz").style.display = "block";
+
+    loadQuestion();
+
+}
+
+loadQuestion();
+
+</script>
+
+</body>
+</html>
